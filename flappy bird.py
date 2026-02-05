@@ -18,16 +18,16 @@ background = pygame.image.load(r"Pygame Developer\Images\ground.png")
 screen = pygame.display.set_mode((WIDTH, LENGTH))
 
 class Flappy(pygame.sprite.Sprite):
-    def __init__(self, x, y, angle):
+    def __init__(self, x, y):
         super().__init__()
         self.images = [flappy1, flappy2, flappy3]
         self.index = 0
         self.counter = 0
         self.image = pygame.transform.scale(self.images[self.index], (50, 50))
-        self.image = pygame.transform.rotate(self.image, angle)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.velocity = 0
     def update(self):
         if flying == True:
             self.counter = self.counter + 1
@@ -37,7 +37,13 @@ class Flappy(pygame.sprite.Sprite):
                 if self.index == 3:
                     self.index = 0
                     self.image = pygame.transform.scale(self.images[self.index], (50, 50))
-flappy = Flappy(flappy1, 150, 300, 0)
+            keypress = pygame.key.get_pressed()
+            if keypress[pygame.K_UP]:
+                self.velocity = -2
+            if self.velocity < 5:
+                self.velocity = self.velocity + 0.1
+            self.rect.y = self.rect.y + self.velocity
+flappy = Flappy(150, 300)
 flappys = pygame.sprite.Group()
 class Pipes(pygame.sprite.Sprite):
     def __init__(self, image, x, y, angle):
@@ -60,11 +66,15 @@ while run:
     pipe_s.draw(screen)
     screen.blit(floor, (floor_x, 525))
     flappys.draw(screen)
+    flappys.update()
     for pipe1 in pipe_s:
         pipe1.rect.x = pipe1.rect.x - 1
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-                run = False
+            run = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                flying = True
     floor_x = floor_x - 1
     if floor_x <= -36:
         floor_x = 0
